@@ -53,7 +53,7 @@ export class UserResolver {
     return user;
   }
 
-  @Mutation(() => User)
+  @Mutation(() => UserResponse)
   async register(
     @Arg('options') options: UsernamePasswordInput,
     @Ctx() { em, req }: MyContext
@@ -99,7 +99,7 @@ export class UserResolver {
     }
     // login after register
     req.session.userId = user.id;
-    return user;
+    return { user };
   }
 
   @Mutation(() => UserResponse)

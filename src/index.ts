@@ -9,7 +9,7 @@ import { buildSchema } from 'type-graphql';
 import { helloResolver } from './resolvers/hello';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
-import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
+// import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 
 import redis from 'redis';
 import session from 'express-session';
@@ -46,7 +46,8 @@ const main = async () => {
   );
 
   const apolloServer = new ApolloServer({
-    plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
+    // 下面这行把apollo sandbox换成老的playground
+    // plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
     schema: await buildSchema({
       resolvers: [helloResolver, PostResolver, UserResolver],
       validate: false,
