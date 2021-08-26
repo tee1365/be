@@ -37,3 +37,16 @@
         },
       } as Parameters<typeof MikroORM.init>[0];
       ```
+
+2. req.session有声明好的类型
+    `req.session.userId = user.id;`
+    typescript默认报错，因为声明里没有userid
+    需要使用declaration merging解决，在当前文件的开头写declaration, 声明会自动合并
+
+    ```ts
+    declare module 'express-session' {
+      interface Session {
+        userId: number;
+      }
+    }
+    ```

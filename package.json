@@ -25,6 +25,7 @@
     "@types/connect-redis": "0.0.17",
     "@types/express-session": "^1.17.4",
     "@types/redis": "^2.8.31",
+    "apollo-server-core": "^3.2.0",
     "apollo-server-express": "^3.1.2",
     "argon2": "^0.28.2",
     "connect-redis": "^6.0.0",

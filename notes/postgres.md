@@ -5,4 +5,3 @@
 3. switch to a database
   `\c lireddit` 
   lireddit is database name
-4. 
