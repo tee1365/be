@@ -1,5 +1,5 @@
 import { MikroORM } from '@mikro-orm/core';
-import { __prod__ } from './constants';
+import { COOKIE_NAME, __prod__ } from './constants';
 import 'reflect-metadata';
 // import { Post } from './entities/Post';
 import mikroOrmConfig from './mikro-orm.config';
@@ -37,7 +37,7 @@ const main = async () => {
   );
   app.use(
     session({
-      name: 'qid',
+      name: COOKIE_NAME,
       store: new RedisStore({ client: redisClient, disableTTL: true }),
       saveUninitialized: false,
       cookie: {
