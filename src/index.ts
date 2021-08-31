@@ -16,6 +16,7 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { MyContext } from './types';
 import cors from 'cors';
+import { sendEmail } from './utils/sendEmail';
 
 const main = async () => {
   const orm = await MikroORM.init(mikroOrmConfig);
@@ -24,6 +25,8 @@ const main = async () => {
   // await orm.em.persistAndFlush(post);
   // const posts = await orm.em.find(Post, {});
   // console.log(posts);
+
+  sendEmail('bob@bob.com', 'hello');
 
   const app = express();
 
