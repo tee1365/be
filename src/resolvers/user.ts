@@ -4,7 +4,7 @@ import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import argon2 from 'argon2';
 import { COOKIE_NAME } from '../constants';
 import { UsernamePasswordInput, UserResponse } from './UsernamePasswordInput';
-import { validateRegister } from 'src/utils/validateRegister';
+import { validateRegister } from '../utils/validateRegister';
 
 declare module 'express-session' {
   interface Session {
@@ -29,7 +29,7 @@ export class UserResolver {
     @Ctx() { em, req }: MyContext
   ) {
     const errors = validateRegister(options);
-    if (errors) return errors;
+    if (errors) return { errors };
     const hashPassword = await argon2.hash(options.password);
     const user = em.create(User, {
       username: options.username,
@@ -69,7 +69,12 @@ export class UserResolver {
     );
     if (!user) {
       return {
-        errors: [{ field: 'username', message: "username doesn't exist" }],
+        errors: [
+          {
+            field: 'usernameOrEmail',
+            message: "username or email doesn't exist",
+          },
+        ],
       };
     }
     const valid = await argon2.verify(user.password, password);
@@ -99,7 +104,10 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   async forgotPassword(@Ctx() { em }: MyContext, @Arg('email') email: string) {
-    // const user = await em.findOne(User, { email });
+    const user = await em.findOne(User, { email });
+    if (!user) {
+      return true;
+    }
     return true;
   }
 }

@@ -22,7 +22,7 @@ export const validateRegister = (
       },
     ];
   }
-  if (options.email.includes('@')) {
+  if (!options.email.includes('@')) {
     return [
       {
         field: 'email',
