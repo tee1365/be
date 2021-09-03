@@ -1,5 +1,5 @@
 import { MikroORM } from '@mikro-orm/core';
-import { COOKIE_NAME, __prod__ } from './constants';
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX, __prod__ } from './constants';
 import 'reflect-metadata';
 // import { Post } from './entities/Post';
 import mikroOrmConfig from './mikro-orm.config';
@@ -11,12 +11,12 @@ import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 // import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 
-import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { MyContext } from './types';
 import cors from 'cors';
 import { sendEmail } from './utils/sendEmail';
+import Redis from 'ioredis';
 
 const main = async () => {
   const orm = await MikroORM.init(mikroOrmConfig);
@@ -26,12 +26,12 @@ const main = async () => {
   // const posts = await orm.em.find(Post, {});
   // console.log(posts);
 
-  sendEmail('bob@bob.com', 'hello');
+  // sendEmail('bob@bob.com', 'hello');
 
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  const redis = new Redis();
   app.use(
     cors({
       origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
@@ -41,7 +41,7 @@ const main = async () => {
   app.use(
     session({
       name: COOKIE_NAME,
-      store: new RedisStore({ client: redisClient, disableTTL: true }),
+      store: new RedisStore({ client: redis, disableTTL: true }),
       saveUninitialized: false,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365,
@@ -61,7 +61,7 @@ const main = async () => {
       resolvers: [helloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({
