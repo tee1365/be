@@ -126,7 +126,6 @@ export class UserResolver {
       'ex',
       1000 * 60 * 60 * 24 * 7
     );
-
     await sendEmail(
       email,
       `<a href="http://localhost:3000/changePassword/${token}">reset password</a>`
