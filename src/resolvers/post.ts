@@ -29,7 +29,7 @@ export class PostResolver {
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null
   ) {
-    const realLimit = Math.min(5, limit);
+    const realLimit = Math.min(20, limit);
     const chars: Record<string, string> = { T: ' ', Z: '' };
 
     if (cursor) {

@@ -10,7 +10,6 @@ import { createConnection } from 'typeorm';
 import { COOKIE_NAME, __prod__ } from './constants';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
-import { helloResolver } from './resolvers/hello';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { MyContext } from './types';
@@ -64,7 +63,7 @@ const main = async () => {
     // 下面这行把apollo sandbox换成老的playground
     // plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
     schema: await buildSchema({
-      resolvers: [helloResolver, PostResolver, UserResolver],
+      resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({ req, res, redis }),
