@@ -4,6 +4,7 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -11,7 +12,7 @@ import {
 } from 'type-graphql';
 import { MyContext } from '../types';
 import { isAuth } from '../middleware/isAuth';
-import { getConnection } from 'typeorm';
+import { getConnection, MoreThan } from 'typeorm';
 
 @InputType()
 class PostInput {
@@ -25,27 +26,30 @@ class PostInput {
 export class PostResolver {
   @Query(() => [Post])
   async posts(
-    @Arg('limit') limit: number,
-    @Arg('cursor', { nullable: true }) cursor: string
+    @Arg('limit', () => Int) limit: number,
+    @Arg('cursor', () => String, { nullable: true }) cursor: string | null
   ) {
-    const realLimit = Math.min(20, limit);
+    const realLimit = Math.min(5, limit);
     const chars: Record<string, string> = { T: ' ', Z: '' };
 
-    const qb = getConnection()
-      .getRepository(Post)
-      .createQueryBuilder('p')
-      .orderBy('createdAt', 'DESC')
-      .take(realLimit);
-
     if (cursor) {
-      qb.where('p.createdAt > :cursor', {
-        cursor: new Date(+cursor)
-          .toISOString()
-          .replace(/[TZ]/g, (ch) => chars[ch]),
+      const posts = Post.find({
+        where: {
+          createdAt: MoreThan(
+            new Date(+cursor).toISOString().replace(/[TZ]/g, (ch) => chars[ch])
+          ),
+        },
+        order: { createdAt: 'DESC' },
+        take: 5,
       });
+      return posts;
+    } else {
+      const posts = Post.find({
+        order: { createdAt: 'DESC' },
+        take: realLimit,
+      });
+      return posts;
     }
-
-    return qb.getMany();
   }
 
   @Query(() => Post, { nullable: true })
@@ -56,10 +60,12 @@ export class PostResolver {
   @Mutation(() => Post)
   @UseMiddleware(isAuth)
   async createPost(@Arg('input') input: PostInput, @Ctx() { req }: MyContext) {
-    return await Post.create({
+    const post = await Post.create({
       ...input,
       creatorId: req.session.userId,
     }).save();
+    console.log(post);
+    return post;
   }
 
   @Mutation(() => Post, { nullable: true })
