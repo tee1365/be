@@ -7,6 +7,7 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   Root,
@@ -14,7 +15,7 @@ import {
 } from 'type-graphql';
 import { MyContext } from '../types';
 import { isAuth } from '../middleware/isAuth';
-import { MoreThan } from 'typeorm';
+import { LessThan } from 'typeorm';
 
 @InputType()
 class PostInput {
@@ -24,6 +25,14 @@ class PostInput {
   text: string;
 }
 
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post])
+  posts: Post[];
+  @Field()
+  hasMore: Boolean;
+}
+
 @Resolver(Post)
 export class PostResolver {
   @FieldResolver(() => String)
@@ -31,31 +40,31 @@ export class PostResolver {
     return root.text.slice(0, 50);
   }
 
-  @Query(() => [Post])
+  @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null
-  ) {
-    const realLimit = Math.min(20, limit);
+  ): Promise<PaginatedPosts> {
+    const realLimit = Math.min(30, limit);
     const chars: Record<string, string> = { T: ' ', Z: '' };
 
     if (cursor) {
-      const posts = Post.find({
+      const posts = await Post.find({
         where: {
-          createdAt: MoreThan(
+          createdAt: LessThan(
             new Date(+cursor).toISOString().replace(/[TZ]/g, (ch) => chars[ch])
           ),
         },
         order: { createdAt: 'DESC' },
-        take: 5,
+        take: realLimit,
       });
-      return posts;
+      return { posts, hasMore: posts.length === realLimit };
     } else {
-      const posts = Post.find({
+      const posts = await Post.find({
         order: { createdAt: 'DESC' },
         take: realLimit,
       });
-      return posts;
+      return { posts, hasMore: posts.length === realLimit };
     }
   }
 
@@ -100,7 +109,4 @@ export class PostResolver {
     }
     return true;
   }
-}
-function textSnippet() {
-  throw new Error('Function not implemented.');
 }

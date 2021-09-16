@@ -33,7 +33,7 @@
       INSERT INTO artists (name) VALUES ("Charlie Byrd");
    ```
 
-4. create migration folder and move file into it
+4. create migration folder and move file into it. Modify the file, add `await queryRunner.query(``)` under up. Then paste sql statement from sql file into ``.
 
 5. add configuration in index
    add `await connection.runMigrations();`
