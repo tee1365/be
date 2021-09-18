@@ -14,7 +14,7 @@ declare module 'express-session' {
   }
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
   @Query(() => User, { nullable: true })
   me(@Ctx() { req }: MyContext) {
