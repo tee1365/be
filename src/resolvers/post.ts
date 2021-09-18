@@ -48,8 +48,10 @@ export class PostResolver {
     const realLimit = Math.min(30, limit);
     const chars: Record<string, string> = { T: ' ', Z: '' };
 
+    let posts: Post[];
+
     if (cursor) {
-      const posts = await Post.find({
+      posts = await Post.find({
         where: {
           createdAt: LessThan(
             new Date(+cursor).toISOString().replace(/[TZ]/g, (ch) => chars[ch])
@@ -58,9 +60,10 @@ export class PostResolver {
         order: { createdAt: 'DESC' },
         take: realLimit,
       });
-      return { posts, hasMore: posts.length === realLimit };
+      posts.shift();
+      return { posts, hasMore: posts.length + 1 === realLimit };
     } else {
-      const posts = await Post.find({
+      posts = await Post.find({
         order: { createdAt: 'DESC' },
         take: realLimit,
       });
