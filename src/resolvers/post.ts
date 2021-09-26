@@ -59,6 +59,7 @@ export class PostResolver {
         },
         order: { createdAt: 'DESC' },
         take: realLimit,
+        relations: ['creator'],
       });
       posts.shift();
       return { posts, hasMore: posts.length + 1 === realLimit };
@@ -66,6 +67,7 @@ export class PostResolver {
       posts = await Post.find({
         order: { createdAt: 'DESC' },
         take: realLimit,
+        relations: ['creator'],
       });
       return { posts, hasMore: posts.length === realLimit };
     }
