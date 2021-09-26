@@ -106,10 +106,11 @@ export class PostResolver {
     return post;
   }
 
-  @Mutation(() => Boolean, { nullable: true })
-  async deletePost(@Arg('id') id: number) {
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async deletePost(@Arg('id') id: number, @Ctx() { req }: MyContext) {
     try {
-      await Post.delete(id);
+      await Post.delete({ id, creatorId: req.session.userId });
     } catch (e) {
       return false;
     }
