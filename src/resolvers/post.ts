@@ -86,14 +86,16 @@ export class PostResolver {
       ...input,
       creatorId: req.session.userId,
     }).save();
-    console.log(post);
     return post;
   }
 
   @Mutation(() => Post, { nullable: true })
+  @UseMiddleware(isAuth)
   async updatePost(
-    @Arg('title', { nullable: true }) title: string,
-    @Arg('id') id: number
+    @Arg('title') title: string,
+    @Arg('id') id: number,
+    @Arg('text') text: string,
+    @Ctx() { req }: MyContext
   ) {
     const post = await Post.findOne(id);
     if (!post) {
@@ -101,9 +103,10 @@ export class PostResolver {
     }
     if (typeof title !== 'undefined') {
       post.title = title;
-      await Post.update({ id }, { title });
+      post.text = text;
+      await Post.update({ id, creatorId: req.session.userId }, { title, text });
     }
-    return post;
+    return Post.findOne(id, { relations: ['creator'] });
   }
 
   @Mutation(() => Boolean)
