@@ -75,7 +75,8 @@ export class PostResolver {
 
   @Query(() => Post, { nullable: true })
   async post(@Arg('id') id: number) {
-    return await Post.findOne(id);
+    const post = await Post.findOne(id, { relations: ['creator'] });
+    return post;
   }
 
   @Mutation(() => Post)
