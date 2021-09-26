@@ -64,7 +64,6 @@ const main = async () => {
   );
 
   const apolloServer = new ApolloServer({
-    // 下面这行把apollo sandbox换成老的playground
     // plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
     schema: await buildSchema({
       resolvers: [PostResolver, UserResolver],
