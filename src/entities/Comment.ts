@@ -1,4 +1,3 @@
-import { type } from 'os';
 import { Field, ObjectType } from 'type-graphql';
 import {
   BaseEntity,
@@ -6,15 +5,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Comment } from './Comment';
+import { Post } from './Post';
 import { User } from './User';
 @ObjectType()
 @Entity()
-export class Post extends BaseEntity {
+export class Comment extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
@@ -23,24 +21,21 @@ export class Post extends BaseEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field(() => String)
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Field()
-  @Column()
-  title!: string;
-
   @Field()
   @Column()
   creatorId: number;
 
-  @Field()
-  @ManyToOne((type) => User, (user) => user.posts)
+  @Field(() => User)
+  @ManyToOne((type) => User, (user) => user.comments)
   creator: User;
 
-  @OneToMany((type) => Comment, (comment) => comment.post)
-  comments: Comment[];
+  @Field()
+  @Column()
+  postId: number;
+
+  @Field(() => Post)
+  @ManyToOne((type) => Post, (post) => post.comments)
+  post: Post;
 
   @Field()
   @Column()

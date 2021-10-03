@@ -12,8 +12,10 @@ import { Post } from './entities/Post';
 import { User } from './entities/User';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
+import { CommentResolver } from './resolvers/comment';
 import { MyContext } from './types';
 import path from 'path';
+import { Comment } from './entities/Comment';
 
 const main = async () => {
   // const connection = await createConnection({
@@ -31,7 +33,7 @@ const main = async () => {
     database: 'justinBlog.sqlite',
     logging: true,
     synchronize: true,
-    entities: [Post, User],
+    entities: [Post, User, Comment],
     migrations: [path.join(__dirname, './migrations/*')],
   });
 
@@ -66,7 +68,7 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     // plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
     schema: await buildSchema({
-      resolvers: [PostResolver, UserResolver],
+      resolvers: [PostResolver, UserResolver, CommentResolver],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({ req, res, redis }),
