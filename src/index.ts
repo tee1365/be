@@ -18,16 +18,6 @@ import path from 'path';
 import { Comment } from './entities/Comment';
 
 const main = async () => {
-  // const connection = await createConnection({
-  //   type: 'postgres',
-  //   database: 'lireddit2',
-  //   username: 'postgres',
-  //   password: 'computer1365',
-  //   logging: true,
-  //   synchronize: true,
-  //   entities: [Post, User],
-  // });
-
   const connection = await createConnection({
     type: 'sqlite',
     database: 'justinBlog.sqlite',
