@@ -14,9 +14,8 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import { MyContext } from '../types';
-import isAuth from '../middleware/isAuth';
 import { LessThan } from 'typeorm';
-import isAdmin from 'src/middleware/isAdmin';
+import isAdmin from '../middleware/isAdmin';
 
 @InputType()
 class PostInput {

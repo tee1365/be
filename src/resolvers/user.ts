@@ -56,6 +56,7 @@ export class UserResolver {
         username: options.username,
         password: hashPassword,
         email: options.email,
+        isAdmin: false,
       }).save();
       // login after register
       req.session.userId = user.id;
