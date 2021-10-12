@@ -41,4 +41,8 @@ export class User extends BaseEntity {
 
   @OneToMany((type) => Comment, (comment) => comment.creator)
   comments: Comment[];
+
+  @Field()
+  @Column()
+  isAdmin: Boolean;
 }

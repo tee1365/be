@@ -19,6 +19,7 @@ import { v4 } from 'uuid';
 declare module 'express-session' {
   interface Session {
     userId: number;
+    isAdmin: Boolean;
   }
 }
 
@@ -58,6 +59,8 @@ export class UserResolver {
       }).save();
       // login after register
       req.session.userId = user.id;
+      req.session.isAdmin = user.isAdmin;
+
       return { user };
     } catch (err) {
       console.log('err:' + err);
@@ -110,6 +113,7 @@ export class UserResolver {
       };
     }
     req.session.userId = user.id;
+    req.session.isAdmin = user.isAdmin;
     return { user };
   }
 
@@ -204,6 +208,7 @@ export class UserResolver {
 
     // login after change password
     req.session.userId = user.id;
+    req.session.isAdmin = user.isAdmin;
 
     return { user };
   }
