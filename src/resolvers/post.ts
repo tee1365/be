@@ -14,8 +14,9 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import { MyContext } from '../types';
-import { isAuth } from '../middleware/isAuth';
+import isAuth from '../middleware/isAuth';
 import { LessThan } from 'typeorm';
+import isAdmin from 'src/middleware/isAdmin';
 
 @InputType()
 class PostInput {
@@ -80,7 +81,7 @@ export class PostResolver {
   }
 
   @Mutation(() => Post)
-  @UseMiddleware(isAuth)
+  @UseMiddleware(isAdmin)
   async createPost(@Arg('input') input: PostInput, @Ctx() { req }: MyContext) {
     const post = await Post.create({
       ...input,
@@ -90,7 +91,7 @@ export class PostResolver {
   }
 
   @Mutation(() => Post, { nullable: true })
-  @UseMiddleware(isAuth)
+  @UseMiddleware(isAdmin)
   async updatePost(
     @Arg('title') title: string,
     @Arg('id') id: number,
@@ -110,7 +111,7 @@ export class PostResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseMiddleware(isAuth)
+  @UseMiddleware(isAdmin)
   async deletePost(@Arg('id') id: number, @Ctx() { req }: MyContext) {
     try {
       await Post.delete({ id, creatorId: req.session.userId });

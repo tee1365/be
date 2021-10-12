@@ -7,7 +7,7 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import { MyContext } from '../types';
-import { isAuth } from '../middleware/isAuth';
+import isAuth from '../middleware/isAuth';
 import { Comment } from '../entities/Comment';
 
 @Resolver(Comment)
