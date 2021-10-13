@@ -2,9 +2,13 @@
   "name": "be",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "nodemon --exec ts-node src/index.ts"
+    "start": "node dist/index.js",
+    "deploy": "git add . && git commit -m Heroku && git push heroku master",
+    "postinstall": "tsc",
+    "watch-node": "nodemon dist/index.js",
+    "watch-ts": "tsc -w"
   },
   "keywords": [],
   "author": "",
