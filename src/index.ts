@@ -18,16 +18,26 @@ import path from 'path';
 import { Comment } from './entities/Comment';
 
 const main = async () => {
+  // const connection = await createConnection({
+  //   type: 'sqlite',
+  //   database: 'justinBlog.sqlite',
+  //   logging: true,
+  //   synchronize: true,
+  //   entities: [Post, User, Comment],
+  //   migrations: [path.join(__dirname, './migrations/*')],
+  // });
+
   const connection = await createConnection({
-    type: 'sqlite',
-    database: 'justinBlog.sqlite',
+    type: 'postgres',
+    database: 'blogDatabase',
+    username: 'postgres',
+    password: 'computer1365',
     logging: true,
     synchronize: true,
     entities: [Post, User, Comment],
-    migrations: [path.join(__dirname, './migrations/*')],
   });
 
-  await connection.runMigrations();
+  // await connection.runMigrations();
 
   const app = express();
 

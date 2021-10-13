@@ -14,7 +14,7 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import { MyContext } from '../types';
-import { LessThan } from 'typeorm';
+import { getConnection, LessThan } from 'typeorm';
 import isAdmin from '../middleware/isAdmin';
 
 @InputType()
@@ -46,31 +46,48 @@ export class PostResolver {
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(30, limit);
-    const chars: Record<string, string> = { T: ' ', Z: '' };
 
     let posts: Post[];
+
+    // if (cursor) {
+    //   posts = await Post.find({
+    //     where: {
+    //       createdAt: LessThan(
+    //         new Date(+cursor).toISOString().replace(/[TZ]/g, (ch) => chars[ch])
+    //       ),
+    //     },
+    //     order: { createdAt: 'DESC' },
+    //     take: realLimit,
+    //     relations: ['creator'],
+    //   });
+    //   posts.shift();
+    //   return { posts, hasMore: posts.length + 1 === realLimit };
+    // } else {
+    //   posts = await Post.find({
+    //     order: { createdAt: 'DESC' },
+    //     take: realLimit,
+    //     relations: ['creator'],
+    //   });
+    //   return { posts, hasMore: posts.length === realLimit };
+    // }
 
     if (cursor) {
       posts = await Post.find({
         where: {
-          createdAt: LessThan(
-            new Date(+cursor).toISOString().replace(/[TZ]/g, (ch) => chars[ch])
-          ),
+          createdAt: LessThan(new Date(+cursor)),
         },
         order: { createdAt: 'DESC' },
         take: realLimit,
         relations: ['creator'],
       });
-      posts.shift();
-      return { posts, hasMore: posts.length + 1 === realLimit };
     } else {
       posts = await Post.find({
         order: { createdAt: 'DESC' },
         take: realLimit,
         relations: ['creator'],
       });
-      return { posts, hasMore: posts.length === realLimit };
     }
+    return { posts, hasMore: posts.length === realLimit };
   }
 
   @Query(() => Post, { nullable: true })

@@ -44,5 +44,5 @@ export class User extends BaseEntity {
 
   @Field()
   @Column()
-  isAdmin!: Boolean;
+  isAdmin: Boolean;
 }
