@@ -9,7 +9,6 @@ import {
   Resolver,
   Root,
 } from 'type-graphql';
-import argon2 from 'argon2';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
 import { UsernamePasswordInput, UserResponse } from './UsernamePasswordInput';
 import { validateRegister } from '../utils/validateRegister';
@@ -50,7 +49,8 @@ export class UserResolver {
   ) {
     const errors = validateRegister(options);
     if (errors) return { errors };
-    const hashPassword = await argon2.hash(options.password);
+    // const hashPassword = await argon2.hash(options.password);
+    const hashPassword = options.password;
     try {
       const user = await User.create({
         username: options.username,
@@ -107,7 +107,9 @@ export class UserResolver {
         ],
       };
     }
-    const valid = await argon2.verify(user.password, password);
+    // const valid = await argon2.verify(user.password, password);
+    const valid = user.password === password;
+
     if (!valid) {
       return {
         errors: [{ field: 'password', message: 'incorrect password' }],
@@ -202,7 +204,8 @@ export class UserResolver {
 
     await User.update(
       { id: +userId },
-      { password: await argon2.hash(newPassword) }
+      // { password: await argon2.hash(newPassword) }
+      { password: newPassword }
     );
 
     await redis.del(key);
