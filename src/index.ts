@@ -1,6 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
+import 'dotenv-safe/config';
 import express from 'express';
 import session from 'express-session';
 import Redis from 'ioredis';
@@ -8,14 +9,13 @@ import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
 import { COOKIE_NAME, __prod__ } from './constants';
+import { Comment } from './entities/Comment';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
+import { CommentResolver } from './resolvers/comment';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
-import { CommentResolver } from './resolvers/comment';
 import { MyContext } from './types';
-import path from 'path';
-import { Comment } from './entities/Comment';
 
 const main = async () => {
   // const connection = await createConnection({
@@ -29,26 +29,30 @@ const main = async () => {
 
   const connection = await createConnection({
     type: 'postgres',
-    database: 'blogDatabase',
-    username: 'postgres',
-    password: 'computer1365',
+    // database: 'blogDatabase',
+    // username: 'postgres',
+    // password: 'computer1365',
+    url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
+    // true in dev
+    // synchronize: true,
     entities: [Post, User, Comment],
   });
 
-  // await connection.runMigrations();
+  await connection.runMigrations();
 
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
+  app.set('proxy', 1);
   app.use(
     cors({
-      origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
+      origin: [process.env.CORS_ORIGIN, 'https://studio.apollographql.com'],
       credentials: true,
     })
   );
+
   app.use(
     session({
       name: COOKIE_NAME,
@@ -59,8 +63,9 @@ const main = async () => {
         httpOnly: true,
         secure: __prod__,
         sameSite: 'lax',
+        domain: __prod__ ? '.codeponder.com' : undefined,
       },
-      secret: 'wqafas',
+      secret: process.env.SESSION_SECRET,
       resave: false,
     })
   );
@@ -79,7 +84,7 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(4000, () => {
+  app.listen(process.env.PORT, () => {
     console.log('server started on 4000');
   });
 };
