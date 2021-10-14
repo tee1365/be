@@ -26,7 +26,6 @@
     "@types/redis": "^2.8.31",
     "apollo-server-core": "^3.2.0",
     "apollo-server-express": "^3.1.2",
-    "argon2": "^0.28.2",
     "connect-redis": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv-safe": "^8.2.0",
