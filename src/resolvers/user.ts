@@ -49,6 +49,7 @@ export class UserResolver {
   ) {
     const errors = validateRegister(options);
     if (errors) return { errors };
+    // const hashPassword = await argon2.hash(options.password);
     const hashPassword = options.password;
     try {
       const user = await User.create({
@@ -106,6 +107,7 @@ export class UserResolver {
         ],
       };
     }
+    // const valid = await argon2.verify(user.password, password);
     const valid = user.password === password;
 
     if (!valid) {
@@ -200,7 +202,11 @@ export class UserResolver {
       };
     }
 
-    await User.update({ id: +userId }, { password: newPassword });
+    await User.update(
+      { id: +userId },
+      // { password: await argon2.hash(newPassword) }
+      { password: newPassword }
+    );
 
     await redis.del(key);
 

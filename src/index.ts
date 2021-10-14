@@ -1,7 +1,7 @@
+import 'dotenv-safe/config';
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
-import 'dotenv-safe/config';
 import express from 'express';
 import session from 'express-session';
 import Redis from 'ioredis';
@@ -27,17 +27,19 @@ const main = async () => {
   //   migrations: [path.join(__dirname, './migrations/*')],
   // });
 
-  const connection = await createConnection({
-    type: 'postgres',
-    // database: 'blogDatabase',
-    // username: 'postgres',
-    // password: 'computer1365',
-    url: process.env.DATABASE_URL,
-    logging: true,
-    // true in dev
-    // synchronize: true,
-    entities: [Post, User, Comment],
-  });
+  // const connection = await createConnection({
+  //   type: 'postgres',
+  //   // database: 'blogDatabase',
+  //   // username: 'postgres',
+  //   // password: 'computer1365',
+  //   url: process.env.DATABASE_URL,
+  //   logging: true,
+  //   // true in dev
+  //   // synchronize: true,
+  //   entities: [Post, User, Comment],
+  // });
+
+  const connection = await createConnection();
 
   await connection.runMigrations();
 

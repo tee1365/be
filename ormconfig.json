@@ -6,5 +6,6 @@
   "password": "computer1365",
   "database": "blogDBDev",
   "entities": ["dist/entities/*.js"],
-  "migration": ["dist/migrations/*.js"]
+  "migration": ["dist/migrations/*.js"],
+  "synchronize": true
 }
