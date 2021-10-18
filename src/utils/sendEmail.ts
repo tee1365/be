@@ -1,6 +1,8 @@
 'use strict';
 import nodemailer from 'nodemailer';
 
+// send email helper function
+
 // async..await is not allowed in global scope, must use a wrapper
 export const sendEmail = async (to: string, html: string) => {
   console.log('nodemailer running!!!!');

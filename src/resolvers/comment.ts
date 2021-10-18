@@ -12,6 +12,7 @@ import { Comment } from '../entities/Comment';
 
 @Resolver(Comment)
 export class CommentResolver {
+  // get comments
   @Query(() => [Comment])
   async comments(@Arg('postId') postId: number) {
     return Comment.find({
@@ -20,6 +21,7 @@ export class CommentResolver {
     });
   }
 
+  // post comments
   @Mutation(() => Comment)
   @UseMiddleware(isAuth)
   async createComment(

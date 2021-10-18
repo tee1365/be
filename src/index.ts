@@ -18,6 +18,7 @@ import { UserResolver } from './resolvers/user';
 import { MyContext } from './types';
 
 const main = async () => {
+  // config for sqlite
   // const connection = await createConnection({
   //   type: 'sqlite',
   //   database: 'justinBlog.sqlite',
@@ -27,6 +28,7 @@ const main = async () => {
   //   migrations: [path.join(__dirname, './migrations/*')],
   // });
 
+  // config for posrgresql, I created a separate file ormconfig.json, so this config is not used
   // const connection = await createConnection({
   //   type: 'postgres',
   //   // database: 'blogDatabase',
@@ -39,6 +41,7 @@ const main = async () => {
   //   entities: [Post, User, Comment],
   // });
 
+  // load from ormconfig.json
   const connection = await createConnection();
 
   await connection.runMigrations();
@@ -65,7 +68,7 @@ const main = async () => {
         httpOnly: true,
         secure: __prod__,
         sameSite: 'lax',
-        domain: __prod__ ? '.codeponder.com' : undefined,
+        domain: __prod__ ? '.tee1365.io' : undefined,
       },
       secret: process.env.SESSION_SECRET,
       resave: false,
@@ -73,6 +76,7 @@ const main = async () => {
   );
 
   const apolloServer = new ApolloServer({
+    // use the following plugin to test api with sessions
     // plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
     schema: await buildSchema({
       resolvers: [PostResolver, UserResolver, CommentResolver],
@@ -83,6 +87,7 @@ const main = async () => {
   await apolloServer.start();
   apolloServer.applyMiddleware({
     app,
+    // cors can be set in either express or apolloserver
     cors: false,
   });
 

@@ -34,6 +34,7 @@ export class UserResolver {
     return '';
   }
 
+  // used to check whether the user is logged in.
   @Query(() => User, { nullable: true })
   me(@Ctx() { req }: MyContext) {
     if (!req.session.userId) {
@@ -42,6 +43,7 @@ export class UserResolver {
     return User.findOne(req.session.userId);
   }
 
+  // register new users. Currently, password hashing is disabled since it will cause some errors during development.
   @Mutation(() => UserResponse)
   async register(
     @Arg('options') options: UsernamePasswordInput,
@@ -86,6 +88,7 @@ export class UserResolver {
     }
   }
 
+  // login
   @Mutation(() => UserResponse)
   async login(
     @Arg('usernameOrEmail') usernameOrEmail: string,
@@ -135,6 +138,7 @@ export class UserResolver {
     );
   }
 
+  // (probably not working, there are some bugs with sending emails) forgot password
   @Mutation(() => Boolean)
   async forgotPassword(
     @Ctx() { redis }: MyContext,

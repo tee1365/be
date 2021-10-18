@@ -35,11 +35,14 @@ class PaginatedPosts {
 
 @Resolver(Post)
 export class PostResolver {
+  // (not used) I used to display the first 50 characters of content in the homepage for the preview.
+  // However, this will interrupt the markdown format.
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 50);
   }
 
+  // fetch posts with pagination
   @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', () => Int) limit: number,
@@ -48,6 +51,8 @@ export class PostResolver {
     const realLimit = Math.min(30, limit);
 
     let posts: Post[];
+
+    // sqlite version, sqlite and postgresql use different time format.
 
     // if (cursor) {
     //   posts = await Post.find({
@@ -71,6 +76,8 @@ export class PostResolver {
     //   return { posts, hasMore: posts.length === realLimit };
     // }
 
+    // postgresql version
+
     if (cursor) {
       posts = await Post.find({
         where: {
@@ -90,12 +97,14 @@ export class PostResolver {
     return { posts, hasMore: posts.length === realLimit };
   }
 
+  // get a single post
   @Query(() => Post, { nullable: true })
   async post(@Arg('id') id: number) {
     const post = await Post.findOne(id, { relations: ['creator'] });
     return post;
   }
 
+  // create a post
   @Mutation(() => Post)
   @UseMiddleware(isAdmin)
   async createPost(@Arg('input') input: PostInput, @Ctx() { req }: MyContext) {
@@ -106,6 +115,7 @@ export class PostResolver {
     return post;
   }
 
+  // update a post, currently not implemented in the front end.
   @Mutation(() => Post, { nullable: true })
   @UseMiddleware(isAdmin)
   async updatePost(
@@ -126,6 +136,7 @@ export class PostResolver {
     return Post.findOne(id, { relations: ['creator'] });
   }
 
+  //delete posts
   @Mutation(() => Boolean)
   @UseMiddleware(isAdmin)
   async deletePost(@Arg('id') id: number, @Ctx() { req }: MyContext) {
