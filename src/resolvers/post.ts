@@ -53,48 +53,48 @@ export class PostResolver {
     let posts: Post[];
 
     // sqlite version, sqlite and postgresql use different time format.
-
-    // if (cursor) {
-    //   posts = await Post.find({
-    //     where: {
-    //       createdAt: LessThan(
-    //         new Date(+cursor).toISOString().replace(/[TZ]/g, (ch) => chars[ch])
-    //       ),
-    //     },
-    //     order: { createdAt: 'DESC' },
-    //     take: realLimit,
-    //     relations: ['creator'],
-    //   });
-    //   posts.shift();
-    //   return { posts, hasMore: posts.length + 1 === realLimit };
-    // } else {
-    //   posts = await Post.find({
-    //     order: { createdAt: 'DESC' },
-    //     take: realLimit,
-    //     relations: ['creator'],
-    //   });
-    //   return { posts, hasMore: posts.length === realLimit };
-    // }
-
-    // postgresql version
-
+    const chars: Record<string, string> = { T: ' ', Z: '' };
     if (cursor) {
       posts = await Post.find({
         where: {
-          createdAt: LessThan(new Date(+cursor)),
+          createdAt: LessThan(
+            new Date(+cursor).toISOString().replace(/[TZ]/g, (ch) => chars[ch])
+          ),
         },
         order: { createdAt: 'DESC' },
         take: realLimit,
         relations: ['creator'],
       });
+      posts.shift();
+      return { posts, hasMore: posts.length + 1 === realLimit };
     } else {
       posts = await Post.find({
         order: { createdAt: 'DESC' },
         take: realLimit,
         relations: ['creator'],
       });
+      return { posts, hasMore: posts.length === realLimit };
     }
-    return { posts, hasMore: posts.length === realLimit };
+
+    // postgresql version
+
+    // if (cursor) {
+    //   posts = await Post.find({
+    //     where: {
+    //       createdAt: LessThan(new Date(+cursor)),
+    //     },
+    //     order: { createdAt: 'DESC' },
+    //     take: realLimit,
+    //     relations: ['creator'],
+    //   });
+    // } else {
+    //   posts = await Post.find({
+    //     order: { createdAt: 'DESC' },
+    //     take: realLimit,
+    //     relations: ['creator'],
+    //   });
+    // }
+    // return { posts, hasMore: posts.length === realLimit };
   }
 
   // get a single post

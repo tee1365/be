@@ -1,4 +1,3 @@
-import 'dotenv-safe/config';
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
@@ -16,17 +15,18 @@ import { CommentResolver } from './resolvers/comment';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { MyContext } from './types';
+import path from 'path';
 
 const main = async () => {
   // config for sqlite
-  // const connection = await createConnection({
-  //   type: 'sqlite',
-  //   database: 'justinBlog.sqlite',
-  //   logging: true,
-  //   synchronize: true,
-  //   entities: [Post, User, Comment],
-  //   migrations: [path.join(__dirname, './migrations/*')],
-  // });
+  const connection = await createConnection({
+    type: 'sqlite',
+    database: 'justinBlog.sqlite',
+    logging: true,
+    synchronize: true,
+    entities: [Post, User, Comment],
+    migrations: [path.join(__dirname, './migrations/*')],
+  });
 
   // config for posrgresql, I created a separate file ormconfig.json, so this config is not used
   // const connection = await createConnection({
@@ -42,7 +42,7 @@ const main = async () => {
   // });
 
   // load from ormconfig.json
-  const connection = await createConnection();
+  // const connection = await createConnection();
 
   await connection.runMigrations();
 
@@ -53,7 +53,7 @@ const main = async () => {
   app.set('proxy', 1);
   app.use(
     cors({
-      origin: [process.env.CORS_ORIGIN, 'https://studio.apollographql.com'],
+      origin: ['https://studio.apollographql.com'],
       credentials: true,
     })
   );
@@ -70,7 +70,7 @@ const main = async () => {
         sameSite: 'lax',
         domain: __prod__ ? '.tee1365.io' : undefined,
       },
-      secret: process.env.SESSION_SECRET,
+      secret: 'wqafas',
       resave: false,
     })
   );
