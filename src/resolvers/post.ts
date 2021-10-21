@@ -62,19 +62,19 @@ export class PostResolver {
           ),
         },
         order: { createdAt: 'DESC' },
-        take: realLimit,
+        take: realLimit + 1,
         relations: ['creator'],
       });
       posts.shift();
-      return { posts, hasMore: posts.length + 1 === realLimit };
     } else {
       posts = await Post.find({
         order: { createdAt: 'DESC' },
         take: realLimit,
         relations: ['creator'],
       });
-      return { posts, hasMore: posts.length === realLimit };
     }
+    const hasMore = posts.length === realLimit;
+    return { posts, hasMore };
 
     // postgresql version
 
