@@ -1,3 +1,5 @@
+# postgresql
+
 1. login
   `psql -U postgres -W`
 2. show all databases

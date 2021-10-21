@@ -6,8 +6,8 @@
     const orm = await MikroORM.init(mikroOrmConfig);
     ```
 
-   1. 为什么要写 as const
-      因为type写的是'postgresql'， typescript默认把这个当成字符串，但是类型声明中写的是'postgresql'|'sqlite'|....。传string出现类型错误。所以要加as const
+   1. as const
+      we use `'postgresql'` as value of `type`，typescript tread this as string. But in the type declaration, the type was set to `'postgresql'|'sqlite'|....`. Passing string will cause some errors.
 
       ```ts
       export default {
@@ -22,8 +22,8 @@
       } as const;
       ```
 
-   2. `Parameters<typeof MikroORM.init>[0]`是什么
-      这个配置是给MikroORM.init使用的。可以通过这个方法来获取MikroORM.init的parameters
+   2. as `Parameters<typeof MikroORM.init>[0]`
+      Since this configuration is consumed by `MikroORM.init`, we can get the type which should be passed like this. This will give us auto code completion.
 
       ```ts
       export default {
@@ -38,12 +38,11 @@
       } as Parameters<typeof MikroORM.init>[0];
       ```
 
-2. req.session有声明好的类型
-    `req.session.userId = user.id;`
-    typescript默认报错，因为声明里没有userid
-    需要使用declaration merging解决，在当前文件的开头写declaration, 声明会自动合并
+2. add new type to req.session
+    If we write something like this `req.session.userId = user.id;`, it will give a error, because there is no `userId` in the `req.session`. The type of `req.session` is set by other libraries, so we need declaration merging to add new types into it. We can write declaration merging like the following code in the file where session is used. The type will be merged into the original type automatically.
 
     ```ts
+    // resolver/user.ts
     declare module 'express-session' {
       interface Session {
         userId: number;

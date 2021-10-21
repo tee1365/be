@@ -49,11 +49,11 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis(process.env.REDIS_URL);
+  const redis = new Redis('127.0.0.1:6379');
   app.set('proxy', 1);
   app.use(
     cors({
-      origin: ['https://studio.apollographql.com'],
+      origin: ['https://studio.apollographql.com', 'http://localhost:3000'],
       credentials: true,
     })
   );
@@ -91,7 +91,7 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(process.env.PORT, () => {
+  app.listen(4000, () => {
     console.log('server started on 4000');
   });
 };
