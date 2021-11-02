@@ -11,8 +11,11 @@ npm run prod
 ```
 
 To set up postgresql
+
 `https://www.postgresql.org/download/`
+
 `https://blog.programster.org/configuring-postgresql-after-installation`
 
 To set up redis
+
 `https://github.com/microsoftarchive/redis/releases`
