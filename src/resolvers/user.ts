@@ -1,7 +1,14 @@
 import { User } from '../entities/User';
 import { MyContext } from '../types';
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
-import argon2 from 'argon2';
+import {
+  Arg,
+  Ctx,
+  FieldResolver,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+} from 'type-graphql';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
 import { UsernamePasswordInput, UserResponse } from './UsernamePasswordInput';
 import { validateRegister } from '../utils/validateRegister';
@@ -11,11 +18,23 @@ import { v4 } from 'uuid';
 declare module 'express-session' {
   interface Session {
     userId: number;
+    isAdmin: Boolean;
   }
 }
 
 @Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    // this is the current user and it's ok to show them their own email
+    if (req.session.userId === user.id) {
+      return user.email;
+    }
+    // current user wants to see someone else's email
+    return '';
+  }
+
+  // used to check whether the user is logged in.
   @Query(() => User, { nullable: true })
   me(@Ctx() { req }: MyContext) {
     if (!req.session.userId) {
@@ -24,6 +43,7 @@ export class UserResolver {
     return User.findOne(req.session.userId);
   }
 
+  // register new users. Currently, password hashing is disabled since it will cause some errors during development.
   @Mutation(() => UserResponse)
   async register(
     @Arg('options') options: UsernamePasswordInput,
@@ -31,15 +51,19 @@ export class UserResolver {
   ) {
     const errors = validateRegister(options);
     if (errors) return { errors };
-    const hashPassword = await argon2.hash(options.password);
+    // const hashPassword = await argon2.hash(options.password);
+    const hashPassword = options.password;
     try {
       const user = await User.create({
         username: options.username,
         password: hashPassword,
         email: options.email,
+        isAdmin: false,
       }).save();
       // login after register
       req.session.userId = user.id;
+      req.session.isAdmin = user.isAdmin;
+
       return { user };
     } catch (err) {
       console.log('err:' + err);
@@ -64,6 +88,7 @@ export class UserResolver {
     }
   }
 
+  // login
   @Mutation(() => UserResponse)
   async login(
     @Arg('usernameOrEmail') usernameOrEmail: string,
@@ -85,13 +110,16 @@ export class UserResolver {
         ],
       };
     }
-    const valid = await argon2.verify(user.password, password);
+    // const valid = await argon2.verify(user.password, password);
+    const valid = user.password === password;
+
     if (!valid) {
       return {
         errors: [{ field: 'password', message: 'incorrect password' }],
       };
     }
     req.session.userId = user.id;
+    req.session.isAdmin = user.isAdmin;
     return { user };
   }
 
@@ -110,6 +138,7 @@ export class UserResolver {
     );
   }
 
+  // (probably not working, there are some bugs with sending emails) forgot password
   @Mutation(() => Boolean)
   async forgotPassword(
     @Ctx() { redis }: MyContext,
@@ -179,13 +208,15 @@ export class UserResolver {
 
     await User.update(
       { id: +userId },
-      { password: await argon2.hash(newPassword) }
+      // { password: await argon2.hash(newPassword) }
+      { password: newPassword }
     );
 
     await redis.del(key);
 
     // login after change password
     req.session.userId = user.id;
+    req.session.isAdmin = user.isAdmin;
 
     return { user };
   }

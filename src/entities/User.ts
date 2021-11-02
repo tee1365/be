@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Comment } from './Comment';
 import { Post } from './Post';
 @ObjectType()
 @Entity()
@@ -35,6 +36,13 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
 
-  @OneToMany(() => Post, (post) => post.creator)
+  @OneToMany((type) => Post, (post) => post.creator)
   posts: Post[];
+
+  @OneToMany((type) => Comment, (comment) => comment.creator)
+  comments: Comment[];
+
+  @Field()
+  @Column()
+  isAdmin: Boolean;
 }

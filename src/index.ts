@@ -1,3 +1,4 @@
+import 'dotenv-safe/config';
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
@@ -8,45 +9,55 @@ import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
 import { COOKIE_NAME, __prod__ } from './constants';
+import { Comment } from './entities/Comment';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
+import { CommentResolver } from './resolvers/comment';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { MyContext } from './types';
-import path from 'path';
 
 const main = async () => {
+  // config for sqlite
   // const connection = await createConnection({
-  //   type: 'postgres',
-  //   database: 'lireddit2',
-  //   username: 'postgres',
-  //   password: 'computer1365',
+  //   type: 'sqlite',
+  //   database: 'justinBlog.sqlite',
   //   logging: true,
   //   synchronize: true,
-  //   entities: [Post, User],
+  //   entities: [Post, User, Comment],
+  //   migrations: [path.join(__dirname, './migrations/*')],
   // });
 
-  const connection = await createConnection({
-    type: 'sqlite',
-    database: 'justinBlog.sqlite',
-    logging: true,
-    synchronize: true,
-    entities: [Post, User],
-    migrations: [path.join(__dirname, './migrations/*')],
-  });
+  // config for posrgresql, I created a separate file ormconfig.json, so this config is not used
+  // const connection = await createConnection({
+  //   type: 'postgres',
+  //   // database: 'blogDatabase',
+  //   // username: 'postgres',
+  //   // password: 'computer1365',
+  //   url: process.env.DATABASE_URL,
+  //   logging: true,
+  //   // true in dev
+  //   // synchronize: true,
+  //   entities: [Post, User, Comment],
+  // });
+
+  // load from ormconfig.json
+  const connection = await createConnection();
 
   await connection.runMigrations();
 
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
+  app.set('proxy', 1);
   app.use(
     cors({
-      origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
+      origin: [process.env.CORS_ORIGIN, 'https://studio.apollographql.com'],
       credentials: true,
     })
   );
+
   app.use(
     session({
       name: COOKIE_NAME,
@@ -57,17 +68,18 @@ const main = async () => {
         httpOnly: true,
         secure: __prod__,
         sameSite: 'lax',
+        domain: __prod__ ? '.tee1365.io' : undefined,
       },
-      secret: 'wqafas',
+      secret: process.env.SESSION_SECRET,
       resave: false,
     })
   );
 
   const apolloServer = new ApolloServer({
-    // 下面这行把apollo sandbox换成老的playground
+    // use the following plugin to test api with sessions
     // plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
     schema: await buildSchema({
-      resolvers: [PostResolver, UserResolver],
+      resolvers: [PostResolver, UserResolver, CommentResolver],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({ req, res, redis }),
@@ -75,10 +87,11 @@ const main = async () => {
   await apolloServer.start();
   apolloServer.applyMiddleware({
     app,
+    // cors can be set in either express or apolloserver
     cors: false,
   });
 
-  app.listen(4000, () => {
+  app.listen(process.env.PORT, () => {
     console.log('server started on 4000');
   });
 };
